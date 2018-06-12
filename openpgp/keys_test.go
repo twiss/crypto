@@ -3,6 +3,8 @@ package openpgp
 import (
 	"bytes"
 	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
 	"strings"
 	"testing"
 	"time"
@@ -10,6 +12,27 @@ import (
 	"golang.org/x/crypto/openpgp/errors"
 	"golang.org/x/crypto/openpgp/packet"
 )
+
+func BenchmarkNewEntity(b *testing.B) {
+    c := &packet.Config{
+		DefaultHash: crypto.SHA256,
+	}
+    for i := 0; i < b.N; i++ {
+        NewEntity("Daniel", "", "email", c)
+    }
+}
+
+func BenchmarkKeyGen2048Old(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        rsa.GenerateKey(rand.Reader, 2048)
+    }
+}
+
+func BenchmarkKeyGen2048New(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        rsaGenerateKey(rand.Reader, 2048)
+    }
+}
 
 func TestKeyExpiry(t *testing.T) {
 	kring, err := ReadKeyRing(readerFromHex(expiringKeyHex))
