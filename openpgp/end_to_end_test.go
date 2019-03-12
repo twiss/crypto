@@ -417,9 +417,12 @@ func makeKeyGenTestSets() (testSets []algorithmSet, err error) {
 
 		serialized := w.Bytes()
 
-		privateKey, _ := ArmorWithType(serialized, "PGP PRIVATE KEY BLOCK")
-		newTestSet.privateKey = privateKey
-		newTestSet.publicKey, _ = PublicKey(privateKey)
+		if newTestSet.privateKey, err = ArmorWithType(serialized, "PGP PRIVATE KEY BLOCK"); err != nil {
+			return
+		}
+		if newTestSet.publicKey, err = PublicKey(newTestSet.privateKey); err != nil {
+			return
+		}
 
 		testSets = append(testSets, newTestSet)
 	}
